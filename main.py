@@ -92,8 +92,7 @@ try:
         source="tensorflow",
         inputs=[input_type],
         compute_units=ct.ComputeUnit.CPU_ONLY,
-        compute_precision=ct.precision.FLOAT32,
-        convert_to_fp16=True
+        compute_precision=ct.precision.FLOAT16
     )
     
     # Save the CoreML model
