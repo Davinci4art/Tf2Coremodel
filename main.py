@@ -57,19 +57,33 @@ history = model.fit(
     verbose=1
 )
 
-# Save complete model
-model.save('spy_stock_model.keras', save_format='keras_v3')
+# Evaluate model
+test_loss = model.evaluate(X_test, y_test, verbose=0)
+print(f"Test Loss: {test_loss}")
 
-# Convert to CoreML
-spec = ct.convert(
-    'spy_stock_model.keras',
-    convert_to="mlprogram",
-    minimum_deployment_target=ct.target.iOS15,
-    source="tensorflow",
-    inputs=[ct.TensorType(name="input_1", shape=(1, sequence_length, 1))],
-    compute_units=ct.ComputeUnit.CPU_AND_NE
-)
-
-# Save the CoreML model
-spec.save("StockPatternClassifier.mlmodel")
-print("Model converted and saved successfully as StockPatternClassifier.mlmodel")
+try:
+    # Save complete model
+    model.save('spy_stock_model.keras', save_format='keras_v3')
+    
+    # Verify the saved model
+    loaded_model = tf.keras.models.load_model('spy_stock_model.keras')
+    if not loaded_model:
+        raise ValueError("Failed to verify saved model")
+    
+    # Convert to CoreML with error handling
+    spec = ct.convert(
+        'spy_stock_model.keras',
+        convert_to="mlprogram",
+        minimum_deployment_target=ct.target.iOS15,
+        source="tensorflow",
+        inputs=[ct.TensorType(name="input_1", shape=(1, sequence_length, 1))],
+        compute_units=ct.ComputeUnit.CPU_AND_NE
+    )
+    
+    # Save the CoreML model
+    spec.save("StockPatternClassifier.mlmodel")
+    print("Model converted and saved successfully as StockPatternClassifier.mlmodel")
+    
+except Exception as e:
+    print(f"Error during model saving/conversion: {e}")
+    exit(1)
