@@ -10,8 +10,14 @@ from sklearn.model_selection import train_test_split
 import yfinance as yf
 import os
 
-# Load SPY ETF data
-data = yf.download('SPY', start='2010-01-01', end='2024-12-31')
+# Load SPY ETF data with error handling
+try:
+    data = yf.download('SPY', start='2010-01-01', end='2024-12-31')
+    if data.empty:
+        raise ValueError("No data downloaded")
+except Exception as e:
+    print(f"Error downloading data: {e}")
+    exit(1)
 
 # Preprocess the data
 data['Close'] = data['Close'].fillna(method='ffill')
@@ -51,12 +57,12 @@ history = model.fit(
     verbose=1
 )
 
-# Save model weights
-model.save_weights('spy_stock_model_weights.h5')
+# Save complete model
+model.save('spy_stock_model.keras', save_format='keras_v3')
 
 # Convert to CoreML
 spec = ct.convert(
-    model,
+    'spy_stock_model.keras',
     convert_to="mlprogram",
     minimum_deployment_target=ct.target.iOS15,
     source="tensorflow",
