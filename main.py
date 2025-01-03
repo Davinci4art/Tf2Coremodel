@@ -51,16 +51,17 @@ history = model.fit(
     verbose=1
 )
 
-# Save Keras model
-model.save('spy_stock_model.keras')
+# Save model weights
+model.save_weights('spy_stock_model_weights.h5')
 
 # Convert to CoreML
 spec = ct.convert(
     model,
     convert_to="mlprogram",
-    minimum_deployment_target=ct.target.iOS13,
+    minimum_deployment_target=ct.target.iOS15,
     source="tensorflow",
     inputs=[ct.TensorType(name="input_1", shape=(1, sequence_length, 1))],
+    compute_units=ct.ComputeUnit.CPU_AND_NE
 )
 
 # Save the CoreML model
