@@ -16,14 +16,16 @@ interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
-# Load TF model from TFLite
-converter = tf.lite.TFLiteConverter.from_file(model_path)
-tf_model = converter.convert()
+# Convert TFLite model to CoreML
+input_shape = input_details[0]['shape']
+output_shape = output_details[0]['shape']
 
-# Convert to Core ML
 mlmodel = ct.convert(
-    tf_model,
+    model_path,
     source='tensorflow',
+    convert_to="mlprogram",
+    inputs=[ct.TensorType(shape=input_shape, name="input_1")],
+    outputs=[ct.TensorType(shape=output_shape, name="output_1")],
     minimum_deployment_target=ct.target.iOS13
 )
 
