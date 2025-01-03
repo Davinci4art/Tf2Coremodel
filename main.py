@@ -73,20 +73,23 @@ try:
     model.save('spy_stock_model.h5', save_format='h5')
     
     # Verify the saved model
-    loaded_model = tf.keras.models.load_model('spy_stock_model.keras')
-    if not loaded_model:
-        raise ValueError("Failed to verify saved model")
+    try:
+        loaded_model = tf.keras.models.load_model('spy_stock_model.h5')
+        print("Model verified successfully")
+    except Exception as e:
+        raise ValueError(f"Failed to verify saved model: {e}")
     
     # Convert to CoreML with enhanced error handling and optimization
+    model_path = 'spy_stock_model.h5'
+    input_name = model.input_names[0]
     spec = ct.convert(
-        'spy_stock_model.h5',
+        model_path,
         convert_to="mlprogram",
         minimum_deployment_target=ct.target.iOS15,
         source="tensorflow",
-        inputs=[ct.TensorType(name="lstm_input", shape=(1, sequence_length, 1))],
-        compute_units=ct.ComputeUnit.CPU_AND_NE,
-        compute_precision=ct.precision.FLOAT32,
-        skip_model_load=False
+        inputs=[ct.TensorType(name=input_name, shape=(1, sequence_length, 1))],
+        compute_units=ct.ComputeUnit.CPU_ONLY,
+        compute_precision=ct.precision.FLOAT32
     )
     
     # Save the CoreML model
