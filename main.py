@@ -17,8 +17,8 @@ input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
 
 # Convert TFLite model to CoreML
-input_shape = input_details[0]['shape']
-output_shape = output_details[0]['shape']
+input_shape = tuple(input_details[0]['shape'])
+output_shape = tuple(output_details[0]['shape'])
 
 mlmodel = ct.convert(
     model_path,
