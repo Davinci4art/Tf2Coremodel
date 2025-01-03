@@ -82,14 +82,18 @@ try:
     # Convert to CoreML with enhanced error handling and optimization
     model_path = 'spy_stock_model.h5'
     input_name = model.input_names[0]
+    input_type = ct.TensorType(name=input_name, 
+                              shape=(1, sequence_length, 1), 
+                              dtype=np.float32)
     spec = ct.convert(
         model_path,
         convert_to="mlprogram",
         minimum_deployment_target=ct.target.iOS15,
         source="tensorflow",
-        inputs=[ct.TensorType(name=input_name, shape=(1, sequence_length, 1))],
+        inputs=[input_type],
         compute_units=ct.ComputeUnit.CPU_ONLY,
-        compute_precision=ct.precision.FLOAT32
+        compute_precision=ct.precision.FLOAT32,
+        convert_to_fp16=True
     )
     
     # Save the CoreML model
