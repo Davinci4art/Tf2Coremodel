@@ -70,7 +70,7 @@ try:
 
     # Save complete model with memory optimization
     tf.keras.backend.clear_session()
-    model.save('spy_stock_model.keras', save_format='keras_v3')
+    model.save('spy_stock_model.h5', save_format='h5')
     
     # Verify the saved model
     loaded_model = tf.keras.models.load_model('spy_stock_model.keras')
@@ -79,7 +79,7 @@ try:
     
     # Convert to CoreML with enhanced error handling and optimization
     spec = ct.convert(
-        'spy_stock_model.keras',
+        'spy_stock_model.h5',
         convert_to="mlprogram",
         minimum_deployment_target=ct.target.iOS15,
         source="tensorflow",
