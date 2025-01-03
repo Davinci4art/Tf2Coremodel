@@ -83,7 +83,7 @@ try:
         convert_to="mlprogram",
         minimum_deployment_target=ct.target.iOS15,
         source="tensorflow",
-        inputs=[ct.TensorType(name="input_1", shape=(1, sequence_length, 1))],
+        inputs=[ct.TensorType(name="lstm_input", shape=(1, sequence_length, 1))],
         compute_units=ct.ComputeUnit.CPU_AND_NE,
         compute_precision=ct.precision.FLOAT32,
         skip_model_load=False
