@@ -1,5 +1,6 @@
 
 import tensorflow as tf
+import coremltools as ct
 import os
 
 # Check if model file exists
@@ -14,6 +15,14 @@ interpreter.allocate_tensors()
 # Get input and output details
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()
-print("Model loaded successfully!")
-print(f"Input shape: {input_details[0]['shape']}")
-print(f"Output shape: {output_details[0]['shape']}")
+
+# Convert TFLite model to CoreML
+mlmodel = ct.convert(
+    model_path,
+    source='tflite',
+    minimum_deployment_target=ct.target.iOS13
+)
+
+# Save the Core ML model
+mlmodel.save('StockPatternClassifier.mlmodel')
+print("Model converted and saved as StockPatternClassifier.mlmodel")
