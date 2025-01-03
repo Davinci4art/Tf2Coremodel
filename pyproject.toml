@@ -7,6 +7,8 @@ authors = ["Your Name <you@example.com>"]
 requires-python = ">=3.11"
 dependencies = [
     "coremltools>=8.1",
+    "numpy>=1.23.5",
+    "pandas>=2.1.0",
     "scikit-learn>=1.6.0",
     "tensorflow==2.12.0",
     "yfinance>=0.2.51",

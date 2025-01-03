@@ -677,6 +677,8 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "coremltools" },
+    { name = "numpy" },
+    { name = "pandas" },
     { name = "scikit-learn" },
     { name = "tensorflow" },
     { name = "yfinance" },
@@ -685,6 +687,8 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "coremltools", specifier = ">=8.1" },
+    { name = "numpy", specifier = ">=1.23.5" },
+    { name = "pandas", specifier = ">=2.1.0" },
     { name = "scikit-learn", specifier = ">=1.6.0" },
     { name = "tensorflow", specifier = "==2.12.0" },
     { name = "yfinance", specifier = ">=0.2.51" },
