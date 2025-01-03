@@ -57,12 +57,19 @@ history = model.fit(
     verbose=1
 )
 
-# Evaluate model
+# Evaluate model and validate predictions
 test_loss = model.evaluate(X_test, y_test, verbose=0)
 print(f"Test Loss: {test_loss}")
 
+# Make predictions to validate model
 try:
-    # Save complete model
+    test_predictions = model.predict(X_test[:1])
+    if np.isnan(test_predictions).any():
+        raise ValueError("Model predictions contain NaN values")
+    print("Model predictions validated successfully")
+
+    # Save complete model with memory optimization
+    tf.keras.backend.clear_session()
     model.save('spy_stock_model.keras', save_format='keras_v3')
     
     # Verify the saved model
@@ -70,14 +77,16 @@ try:
     if not loaded_model:
         raise ValueError("Failed to verify saved model")
     
-    # Convert to CoreML with error handling
+    # Convert to CoreML with enhanced error handling and optimization
     spec = ct.convert(
         'spy_stock_model.keras',
         convert_to="mlprogram",
         minimum_deployment_target=ct.target.iOS15,
         source="tensorflow",
         inputs=[ct.TensorType(name="input_1", shape=(1, sequence_length, 1))],
-        compute_units=ct.ComputeUnit.CPU_AND_NE
+        compute_units=ct.ComputeUnit.CPU_AND_NE,
+        compute_precision=ct.precision.FLOAT32,
+        skip_model_load=False
     )
     
     # Save the CoreML model
