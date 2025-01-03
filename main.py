@@ -31,49 +31,38 @@ X, y = np.array(X), np.array(y)
 
 # Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], 1))
-X_test = X_test.reshape((X_test.shape[0], X_test.shape[1], 1))
+X_train = X_train.reshape((X_train.shape[0], sequence_length, 1))
+X_test = X_test.reshape((X_test.shape[0], sequence_length, 1))
 
 # Define and train LSTM model
-model = Sequential([
-    LSTM(units=50, return_sequences=True, input_shape=(sequence_length, 1)),
-    Dropout(0.2),
-    LSTM(units=50, return_sequences=False),
-    Dropout(0.2),
-    Dense(units=1)
-])
+model = Sequential()
+model.add(LSTM(50, return_sequences=True, input_shape=(sequence_length, 1)))
+model.add(Dropout(0.2))
+model.add(LSTM(50))
+model.add(Dropout(0.2))
+model.add(Dense(1))
 
-model.compile(optimizer='adam', loss='mean_squared_error')
-model.fit(X_train, y_train, epochs=5, batch_size=32, validation_data=(X_test, y_test))
-
-# Save the model in SavedModel format first
-model.save("spy_stock_model")
-
-# Convert to TFLite
-converter = tf.lite.TFLiteConverter.from_saved_model("spy_stock_model")
-converter.target_spec.supported_ops = [
-    tf.lite.OpsSet.TFLITE_BUILTINS,
-    tf.lite.OpsSet.SELECT_TF_OPS
-]
-converter.optimizations = [tf.lite.Optimize.DEFAULT]
-converter._experimental_lower_tensor_list_ops = False
-converter.allow_custom_ops = True
-converter.experimental_enable_resource_variables = True
-tflite_model = converter.convert()
-
-# Save TFLite model
-with open("spy_stock_model.tflite", "wb") as f:
-    f.write(tflite_model)
-
-# Convert to CoreML
-mlmodel = ct.convert(
-    "spy_stock_model",
-    source="tensorflow",
-    convert_to="mlprogram",
-    inputs=[ct.TensorType(name="input_1", shape=(1, sequence_length, 1))],
-    minimum_deployment_target=ct.target.iOS13
+model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+history = model.fit(
+    X_train, y_train,
+    epochs=10,
+    batch_size=32,
+    validation_data=(X_test, y_test),
+    verbose=1
 )
 
-# Save the Core ML model
-mlmodel.save("StockPatternClassifier.mlmodel")
-print("Model converted and saved successfully")
+# Save Keras model
+model.save('spy_stock_model.keras')
+
+# Convert to CoreML
+spec = ct.convert(
+    model,
+    convert_to="mlprogram",
+    minimum_deployment_target=ct.target.iOS13,
+    source="tensorflow",
+    inputs=[ct.TensorType(name="input_1", shape=(1, sequence_length, 1))],
+)
+
+# Save the CoreML model
+spec.save("StockPatternClassifier.mlmodel")
+print("Model converted and saved successfully as StockPatternClassifier.mlmodel")
